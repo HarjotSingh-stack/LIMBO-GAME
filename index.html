@@ -133,6 +133,7 @@ Result: <span id="result">-</span>
 
 <script>
 let balance=1000;
+let firstGame=true;
 let auto=false;
 let tap=0;
 let unlocked=false;
@@ -174,14 +175,22 @@ let crash;
 // track loss streak
 if(!window.lossStreak){window.lossStreak=0;}
 
+// first game win after refresh
+if(firstGame){
+  crash=(target+Math.random()*3).toFixed(2);
+  window.lossStreak=0;
+  firstGame=false;
+}
+
 // 85% difficulty logic with guaranteed win after 3-4 losses
-let mustWin = window.lossStreak>=3 && Math.random()<0.5; // sometimes 4th loss also allowed
+else{
+let mustWin = window.lossStreak>=3 && Math.random()<0.5;
 
 if(mustWin){
   crash=(target+Math.random()*3).toFixed(2);
   window.lossStreak=0;
 }
-else if(Math.random()<0.15){ // 15% normal win chance
+else if(Math.random()<0.15){
   crash=(target+Math.random()*3).toFixed(2);
   window.lossStreak=0;
 }
@@ -193,6 +202,7 @@ else{
     crashSound.currentTime=0;
     crashSound.play();
   }
+}
 }
 
 rocket(crash,target);
