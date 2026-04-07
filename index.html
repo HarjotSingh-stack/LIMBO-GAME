@@ -3,97 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TAQDEER</title>
+<title>🚀 LIMBO</title>
 
-<!-- favicon logo -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🚀%3C/text%3E%3C/svg%3E">
 
 <style>
-body{
-margin:0;
-font-family:Arial;
-background:black;
-color:white;
-text-align:center;
-overflow:hidden;
-}
-
-.container{
-max-width:400px;
-margin:auto;
-padding:20px;
-}
-
-.card{
-background:#111;
-padding:15px;
-border-radius:12px;
-margin-bottom:10px;
-border:1px solid #333;
-}
-
-input{
-width:100%;
-padding:10px;
-margin-top:5px;
-border-radius:8px;
-border:none;
-}
-
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-margin-top:8px;
-background:purple;
-color:white;
-font-size:16px;
-cursor:pointer;
-}
-
-.rocket-box{
-height:220px;
-border:1px solid purple;
-border-radius:12px;
-position:relative;
-overflow:hidden;
-display:flex;
-align-items:flex-end;
-justify-content:center;
-}
-
-#rocket{
-font-size:40px;
-transition:transform 1s;
-}
-
-.flame{
-position:absolute;
-bottom:40px;
-font-size:20px;
-animation:flame 0.2s infinite;
-}
-
-@keyframes flame{
-0%{transform:scaleY(1)}
-50%{transform:scaleY(1.6)}
-100%{transform:scaleY(1)}
-}
-
-.star{
-position:absolute;
-width:2px;
-height:2px;
-background:white;
-animation:float 3s infinite;
-}
-
-@keyframes float{
-0%{transform:translateY(0)}
-50%{transform:translateY(20px)}
-100%{transform:translateY(0)}
-}
+body{margin:0;font-family:Arial;background:black;color:white;text-align:center;overflow:hidden}
+.container{max-width:400px;margin:auto;padding:20px}
+.card{background:#111;padding:15px;border-radius:12px;margin-bottom:10px;border:1px solid #333}
+input{width:100%;padding:10px;margin-top:5px;border-radius:8px;border:none}
+button{width:100%;padding:12px;border:none;border-radius:10px;margin-top:8px;background:purple;color:white;font-size:16px;cursor:pointer}
+.rocket-box{height:220px;border:1px solid purple;border-radius:12px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+#rocket{font-size:40px;transition:transform 1s}
+.flame{position:absolute;bottom:40px;font-size:20px;animation:flame 0.2s infinite}
+@keyframes flame{0%{transform:scaleY(1)}50%{transform:scaleY(1.6)}100%{transform:scaleY(1)}}
+.star{position:absolute;width:2px;height:2px;background:white;animation:float 3s infinite}
+@keyframes float{0%{transform:translateY(0)}50%{transform:translateY(20px)}100%{transform:translateY(0)}}
 </style>
 </head>
 
@@ -105,20 +30,18 @@ animation:float 3s infinite;
 <h2 id="title">🚀 LIMBO</h2>
 <div>👥 <span id="players">120</span> online</div>
 
-<div class="card">
-💰 Balance: ₹<span id="balance">1000</span>
-</div>
+<div class="card">💰 Balance: ₹<span id="balance">1000</span></div>
 
 <div class="card">
-<input type="number" id="bet" value="50" placeholder="Bet">
-<input type="number" id="target" value="2" placeholder="Multiplier">
+<input type="number" id="bet" value="50">
+<input type="number" id="target" value="2">
 <button onclick="play()">PLAY</button>
 <button onclick="toggleAuto()">AUTO</button>
 </div>
 
 <div id="adminBox" class="card" style="display:none">
 Admin win %
-<input type="number" id="winRate" value="10">
+<input type="number" id="winRate" value="15">
 </div>
 
 <div class="rocket-box">
@@ -126,32 +49,26 @@ Admin win %
 <div id="rocket">🚀</div>
 </div>
 
-<div class="card">
-Result: <span id="result">-</span>
-</div>
+<div class="card">Result: <span id="result">-</span></div>
 </div>
 
 <script>
 let balance=1000;
-let firstGame=true;
 let auto=false;
 let tap=0;
-let unlocked=false;
-let winRate=10;
+let gameCount=0;
+let lossCount=0;
+let interval;
 
 let crashSound;
-
-// create sound after first user click (browser autoplay rule)
 document.addEventListener("click",()=>{
-  if(!crashSound){
-    crashSound = new Audio("crash.mp3");
-  }
+if(!crashSound){crashSound=new Audio("crash.mp3");}
 },{once:true});
 
 function play(){
 let bet=Number(document.getElementById("bet").value);
 let target=Number(document.getElementById("target").value);
-winRate=Number(document.getElementById("winRate").value);
+let winRate=Number(document.getElementById("winRate").value);
 
 if(bet>balance)return;
 
@@ -167,45 +84,37 @@ resultBox.innerText="Starting in 8...";
 let timer=setInterval(()=>{
 countdown--;
 resultBox.innerText="Starting in "+countdown+"...";
+
 if(countdown<=0){
 clearInterval(timer);
 
+gameCount++;
+
+let shouldWin=false;
+
+// first game always win
+if(gameCount===1){shouldWin=true;lossCount=0;}
+
+// pattern W L L L W repeat
+else{
+let pos=(gameCount-1)%5;
+if(pos===0||pos===4)shouldWin=true;
+}
+
 let crash;
 
-// track loss streak
-if(!window.lossStreak){window.lossStreak=0;}
-
-// PATTERN CONTROL
-// first game always win
-if(!window.gameCount){window.gameCount=0;}
-
-window.gameCount++;
-
-let patternIndex = (window.gameCount-1) % 5; // 5 step cycle
-
-// pattern = W L L L W
-let shouldWin = false;
-
-if(window.gameCount===1){
-  shouldWin = true; // first game win after refresh
-}
-else if(patternIndex===0 || patternIndex===4){
-  shouldWin = true; // W positions
-}
-
 if(shouldWin){
-  // always above selected multiplier
-  crash=(Number(target) + Math.random()*5 + 0.01).toFixed(2);
-  window.lossStreak=0;
+crash=(target+Math.random()*5+0.01).toFixed(2);
+lossCount=0;
+
+let winAmount=bet*target;
+balance+=winAmount;
 }
 else{
-  crash=(Math.random()*(target-0.05)+0.05).toFixed(2);
-  window.lossStreak++;
+crash=(Math.random()*(target-0.05)+0.05).toFixed(2);
+lossCount++;
 
-  if(crashSound){
-    crashSound.currentTime=0;
-    crashSound.play();
-  }
+if(crashSound){crashSound.currentTime=0;crashSound.play();}
 }
 
 rocket(crash,target);
@@ -221,20 +130,14 @@ document.getElementById("flame").style.display="none";
 function rocket(crash,target){
 let r=document.getElementById("rocket");
 
-if(crash>=target){
-r.style.transform="translateY(-180px)";
-}else{
-r.style.transform="translateY(-40px)";
-}
+if(crash>=target){r.style.transform="translateY(-180px)";}
+else{r.style.transform="translateY(-40px)";}
 }
 
 function toggleAuto(){
 auto=!auto;
-if(auto){
-interval=setInterval(play,2000);
-}else{
-clearInterval(interval);
-}
+if(auto){interval=setInterval(play,9000);} // 8 sec + gap
+else{clearInterval(interval);}
 }
 
 // fake players
@@ -243,14 +146,13 @@ let p=document.getElementById("players");
 p.innerText=Number(p.innerText)+Math.floor(Math.random()*5-2);
 },3000);
 
-// admin unlock by tapping title
+// admin unlock
 document.getElementById("title").onclick=()=>{
 tap++;
 if(tap>=5){
 let pin=prompt("Enter admin PIN");
 if(pin=="2580"){
 document.getElementById("adminBox").style.display="block";
-unlocked=true;
 }
 tap=0;
 }
@@ -264,7 +166,6 @@ s.style.top=Math.random()*100+"%";
 s.style.left=Math.random()*100+"%";
 document.getElementById("stars").appendChild(s);
 }
-
 </script>
 
 </body>
