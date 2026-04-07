@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚀 LIMBO</title>
+<title> LIMBO</title>
 
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🚀%3C/text%3E%3C/svg%3E">
 
@@ -53,7 +53,8 @@ Admin win %
 </div>
 
 <script>
-let balance=1000;
+// keep balance saved even after refresh
+let balance = Number(localStorage.getItem("balance") || 1000);
 let auto=false;
 let tap=0;
 let gameCount=0;
@@ -74,6 +75,7 @@ if(bet>balance)return;
 
 balance-=bet;
 document.getElementById("balance").innerText=balance;
+localStorage.setItem("balance",balance);
 
 document.getElementById("flame").style.display="block";
 
@@ -120,6 +122,7 @@ if(crashSound){crashSound.currentTime=0;crashSound.play();}
 rocket(crash,target);
 
 document.getElementById("balance").innerText=balance;
+localStorage.setItem("balance",balance);
 resultBox.innerText="Result: "+crash+"x";
 
 document.getElementById("flame").style.display="none";
