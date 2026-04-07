@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Limbo Rocket Game</title>
 
+<!-- favicon logo -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🚀%3C/text%3E%3C/svg%3E">
+
 <style>
 body{
 margin:0;
@@ -168,18 +171,28 @@ clearInterval(timer);
 
 let crash;
 
-if(Math.random()<winRate/100){
-crash=(target+Math.random()*3).toFixed(2);
-}else{
-crash=(Math.random()*(target-0.1)+0.1).toFixed(2);
-if(crashSound){
-  crashSound.currentTime=0;
-  crashSound.play();
-}
-}
+// track loss streak
+if(!window.lossStreak){window.lossStreak=0;}
 
-if(crash>=target){
-balance+=bet*target;
+// 85% difficulty logic with guaranteed win after 3-4 losses
+let mustWin = window.lossStreak>=3 && Math.random()<0.5; // sometimes 4th loss also allowed
+
+if(mustWin){
+  crash=(target+Math.random()*3).toFixed(2);
+  window.lossStreak=0;
+}
+else if(Math.random()<0.15){ // 15% normal win chance
+  crash=(target+Math.random()*3).toFixed(2);
+  window.lossStreak=0;
+}
+else{
+  crash=(Math.random()*(target-0.1)+0.1).toFixed(2);
+  window.lossStreak++;
+
+  if(crashSound){
+    crashSound.currentTime=0;
+    crashSound.play();
+  }
 }
 
 rocket(crash,target);
