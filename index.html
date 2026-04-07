@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Limbo Rocket Game</title>
+<title>TAQDEER</title>
 
 <!-- favicon logo -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E🚀%3C/text%3E%3C/svg%3E">
@@ -175,34 +175,37 @@ let crash;
 // track loss streak
 if(!window.lossStreak){window.lossStreak=0;}
 
-// first game win after refresh
-if(firstGame){
-  crash=(target+Math.random()*3).toFixed(2);
-  window.lossStreak=0;
-  firstGame=false;
+// PATTERN CONTROL
+// first game always win
+if(!window.gameCount){window.gameCount=0;}
+
+window.gameCount++;
+
+let patternIndex = (window.gameCount-1) % 5; // 5 step cycle
+
+// pattern = W L L L W
+let shouldWin = false;
+
+if(window.gameCount===1){
+  shouldWin = true; // first game win after refresh
+}
+else if(patternIndex===0 || patternIndex===4){
+  shouldWin = true; // W positions
 }
 
-// 85% difficulty logic with guaranteed win after 3-4 losses
-else{
-let mustWin = window.lossStreak>=3 && Math.random()<0.5;
-
-if(mustWin){
-  crash=(target+Math.random()*3).toFixed(2);
-  window.lossStreak=0;
-}
-else if(Math.random()<0.15){
-  crash=(target+Math.random()*3).toFixed(2);
+if(shouldWin){
+  // always above selected multiplier
+  crash=(Number(target) + Math.random()*5 + 0.01).toFixed(2);
   window.lossStreak=0;
 }
 else{
-  crash=(Math.random()*(target-0.1)+0.1).toFixed(2);
+  crash=(Math.random()*(target-0.05)+0.05).toFixed(2);
   window.lossStreak++;
 
   if(crashSound){
     crashSound.currentTime=0;
     crashSound.play();
   }
-}
 }
 
 rocket(crash,target);
